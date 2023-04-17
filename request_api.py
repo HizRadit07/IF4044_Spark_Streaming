@@ -1,6 +1,7 @@
 import requests
 import json
 import time
+from kafka import KafkaProducer
 
 s = requests.Session()
 
@@ -40,8 +41,17 @@ def read_stream():
             else:
                 buffer += line
 
+producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
+                         value_serializer=lambda x:
+                         x.encode('utf-8'))
+
+KAFKA_TOPIC = 'social_media'
+
+
 if __name__ == '__main__':
     for i in read_stream():
         print(i)
         print()
+        message = str(json.dumps(i))
+        producer.send(KAFKA_TOPIC, value=message)
         pass
